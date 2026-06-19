@@ -1,0 +1,9 @@
+package es.upsa.dasi.tfg.proyectos.application.usecases;
+
+import es.upsa.dasi.tfg.common.domain.exceptions.NotFoundTfgException;
+import es.upsa.dasi.tfg.proyectos.domain.model.ReplaceProyectoCommand;
+
+public interface UpdateProyectoUsecase
+{
+    void execute(long id, ReplaceProyectoCommand command) throws NotFoundTfgException;
+}

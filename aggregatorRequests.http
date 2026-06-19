@@ -1,0 +1,91 @@
+# Pruebas al aggregator (puerta del frontend) — http://localhost:8080
+# Mismas rutas que usa la app React en frontend-react/src/api/client.ts
+
+@baseUrl = http://localhost:8080
+@token = eyJhbGciOiJSUzI1NiIsImtpZCI6ImVlOTA0NmVhZDJlMDUwMDAxMGVkNTA0M2I0ODNkODRiMGM1MmM3YzQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ2VzdGlvbnByb3llY3Rvc3VuaXZlcnNpdGFyaW9zIiwiYXVkIjoiZ2VzdGlvbnByb3llY3Rvc3VuaXZlcnNpdGFyaW9zIiwiYXV0aF90aW1lIjoxNzgxODQyNjcwLCJ1c2VyX2lkIjoiUDk5bFhBWFlGRE9yUmF2TFRpaXk4WmFNenZqMiIsInN1YiI6IlA5OWxYQVhZRkRPclJhdkxUaWl5OFphTXp2ajIiLCJpYXQiOjE3ODE4NDI2NzAsImV4cCI6MTc4MTg0NjI3MCwiZW1haWwiOiJqdWFuQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqdWFuQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.H9e1q_jbkmL4MTKq9qczQudemoWP6BN1tG2NBsirnhC3VIkrTc_98g5hZS5C7xqotkPo7s9Kd_6yHm1jDfH69E-e87QBuNVH8xqSg2TSyMNdi8YB30IH89Evzcn0a0mEkCDmRbG43ppi9PtHdxaaI0rESvKBBzh7GhWbRg7y8s9-E-12bRDCJXWhb52kZCEju-t7Ic5mzkg_7C9nzvb-Dqb2ILdUk6MBJr18a1gx4R6s932uTEEPUG10t5RFYDRvCndCJWQDpMCRU-qGRqMj7MwvJWdNXOI2f7rmS1Hq-WTeCnLHOtv45VqP3iLfoAixuLtaacgClebDYzJgbMxj6g
+
+### Health (público)
+GET {{baseUrl}}/api/health
+Accept: application/json
+
+### --- Proyectos ---
+
+GET {{baseUrl}}/api/proyectos
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/api/proyectos/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/api/proyectos/1/hitos
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/api/proyectos/1/miembros
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/api/proyectos/1/tareas
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### --- Usuario / perfil ---
+
+### Perfil (datos + proyectos y rol)
+GET {{baseUrl}}/api/usuarios/perfil
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Crear proyecto
+POST {{baseUrl}}/api/proyectos
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "titulo": "Mi nuevo proyecto",
+  "descripcion": "Descripción",
+  "estado": "PLANIFICACION"
+}
+
+### Actualizar proyecto 1
+PUT {{baseUrl}}/api/proyectos/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "titulo": "TFG - Plataforma de proyectos",
+  "descripcion": "Desarrollo del sistema web",
+  "fechaInicio": "2026-01-15",
+  "fechaFin": "2026-06-30",
+  "estado": "EN_CURSO"
+}
+
+### Sync tras login Firebase
+POST {{baseUrl}}/api/usuarios/sync
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "firebaseUid": "PEGAR_MISMO_UID_DEL_TOKEN",
+  "email": "alumno@upsa.es",
+  "nombre": "Juan Valencia"
+}
+
+### --- Informes y notificaciones ---
+
+GET {{baseUrl}}/api/informes/resumen
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/api/notificaciones
+Accept: application/json
+Authorization: Bearer {{token}}

@@ -1,0 +1,92 @@
+# Pruebas directas a microservicios (puertos 8081-8085)
+# Sustituye {{token}} por el JWT de Firebase (DevTools → Network → Authorization)
+
+@hostHealth = http://localhost:8081
+@hostProyectos = http://localhost:8082
+@hostTareas = http://localhost:8083
+@hostUsuarios = http://localhost:8084
+@hostInformes = http://localhost:8085
+@token = PEGAR_TOKEN_FIREBASE
+
+### Health (sin token)
+GET {{hostHealth}}/api/health
+Accept: application/json
+
+### --- Proyectos ---
+
+### Listar proyectos
+GET {{hostProyectos}}/api/proyectos
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Detalle proyecto 1
+GET {{hostProyectos}}/api/proyectos/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Hitos proyecto 1
+GET {{hostProyectos}}/api/proyectos/1/hitos
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Miembros proyecto 1 (roles Scrum)
+GET {{hostProyectos}}/api/proyectos/1/miembros
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Mis participaciones (perfil)
+GET {{hostProyectos}}/api/usuarios/me/participaciones
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### --- Tareas ---
+
+### Tareas del proyecto 1
+GET {{hostTareas}}/api/proyectos/1/tareas
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### --- Usuarios ---
+
+### Perfil (sin UID en respuesta)
+GET {{hostUsuarios}}/api/usuarios/perfil
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Actualizar proyecto
+PUT {{hostProyectos}}/api/proyectos/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "titulo": "TFG - Plataforma de proyectos",
+  "descripcion": "Desarrollo del sistema web",
+  "fechaInicio": "2026-01-15",
+  "fechaFin": "2026-06-30",
+  "estado": "EN_CURSO"
+}
+
+### Sync usuario tras login
+POST {{hostUsuarios}}/api/usuarios/sync
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "firebaseUid": "PEGAR_MISMO_UID_DEL_TOKEN",
+  "email": "alumno@upsa.es",
+  "nombre": "Juan Valencia"
+}
+
+### Notificaciones
+GET {{hostUsuarios}}/api/notificaciones
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### --- Informes ---
+
+### Resumen informes
+GET {{hostInformes}}/api/informes/resumen
+Accept: application/json
+Authorization: Bearer {{token}}

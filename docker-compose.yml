@@ -1,0 +1,17 @@
+# PostgreSQL local para el TFG (Docker en tu máquina = entorno local, no nube)
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tfg-postgres
+    environment:
+      POSTGRES_DB: tfg_proyectos
+      POSTGRES_USER: tfg
+      POSTGRES_PASSWORD: tfg_secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - tfg_pg_data:/var/lib/postgresql/data
+      - ./database.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+volumes:
+  tfg_pg_data:
