@@ -10,7 +10,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+@Tag(name = "Notificaciones", description = "Notificaciones e invitaciones del usuario")
 @Path("/api/notificaciones")
 @Produces(MediaType.APPLICATION_JSON)
 public class NotificacionesResource

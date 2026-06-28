@@ -6,7 +6,8 @@ public enum RolProyecto
 {
     PRODUCT_OWNER("Product Owner"),
     SCRUM_MASTER("Scrum Master"),
-    DEVELOPER("Equipo de Desarrollo");
+    DEVELOPER("Equipo de Desarrollo"),
+    TUTOR("Tutor");
 
     private final String etiqueta;
 

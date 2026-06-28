@@ -13,4 +13,6 @@ public class Usuario
     private String email;
     private String nombre;
     private String avatarUrl;
+    private Long universidadId;
+    private TipoUsuario tipo;
 }

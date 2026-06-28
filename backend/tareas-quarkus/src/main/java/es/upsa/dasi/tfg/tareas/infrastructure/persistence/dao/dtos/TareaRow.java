@@ -22,4 +22,7 @@ public class TareaRow
     LocalDate fechaLimite;
     int orden;
     LocalDateTime creadoEn;
+    String origen;
+    Long tareaPadreId;
+    String letraSubtarea;
 }

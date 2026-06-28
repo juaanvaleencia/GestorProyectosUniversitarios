@@ -12,4 +12,10 @@ public interface Dao
     TareaRow insertTarea(TareaRow row);
     Optional<TareaRow> updateTarea(TareaRow row);
     int deleteTareaById(long id);
+    void insertNotificacion(String usuarioUid, String texto);
+    boolean isUsuarioTutorEnProyecto(long proyectoId, String usuarioUid);
+    int countSubtareasByPadre(long tareaPadreId);
+    int countSubtareasSinResponsableByPadre(long tareaPadreId);
+
+    int updateEstadoSubtareasByPadreEnColumna(long tareaPadreId, String estadoOrigen, String estadoDestino);
 }

@@ -17,13 +17,25 @@ public interface UsecaseMapper
     @Mapping(target = "proyectoId", source = "proyectoId")
     @Mapping(target = "fechaLimite", expression = "java(parseDate(command.getFechaLimite()))")
     @Mapping(target = "creadoEn", ignore = true)
+    @Mapping(target = "origen", constant = "ALUMNO")
+    @Mapping(target = "tareaPadreId", source = "command.tareaPadreId")
+    @Mapping(target = "letraSubtarea", ignore = true)
     Tarea toTarea(AddTareaCommand command, long proyectoId);
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "proyectoId", source = "proyectoId")
+    @Mapping(target = "titulo", source = "command.titulo")
+    @Mapping(target = "descripcion", source = "command.descripcion")
+    @Mapping(target = "estado", source = "command.estado")
+    @Mapping(target = "prioridad", source = "command.prioridad")
+    @Mapping(target = "responsableUid", source = "command.responsableUid")
+    @Mapping(target = "orden", source = "command.orden")
     @Mapping(target = "fechaLimite", expression = "java(parseDate(command.getFechaLimite()))")
     @Mapping(target = "creadoEn", source = "creadoEn")
-    Tarea toTarea(long id, long proyectoId, ReplaceTareaCommand command, LocalDateTime creadoEn);
+    @Mapping(target = "origen", source = "actual.origen")
+    @Mapping(target = "tareaPadreId", source = "actual.tareaPadreId")
+    @Mapping(target = "letraSubtarea", source = "actual.letraSubtarea")
+    Tarea toTarea(long id, long proyectoId, ReplaceTareaCommand command, LocalDateTime creadoEn, Tarea actual);
 
     default LocalDate parseDate(String value)
     {

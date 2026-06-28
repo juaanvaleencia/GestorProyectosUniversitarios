@@ -14,4 +14,5 @@ public class AddTareaCommand
     private String responsableUid;
     private String fechaLimite;
     private int orden;
+    private Long tareaPadreId;
 }

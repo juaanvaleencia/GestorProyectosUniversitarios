@@ -46,14 +46,17 @@ Compilar (primera vez):
 cd backend && ./mvnw install -DskipTests -f ..
 ```
 
-**Arrancar todos los servicios** (desarrollo, logs en `backend/logs/`):
+**Arrancar todos los servicios** (logs en `backend/logs/`; por defecto usa JARs empaquetados):
 
 ```bash
 cd backend
 chmod +x mvnw start-services.sh stop-services.sh */*.sh
+./mvnw package -DskipTests   # primera vez o tras cambios en common
 ./start-services.sh
 ./stop-services.sh   # detener
 ```
+
+Compilar tras cambios en Java: `./mvnw package -DskipTests` (antes de `./start-services.sh`).
 
 **Un solo microservicio** (mismo estilo que el profesor: un `.sh` por módulo):
 

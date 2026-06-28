@@ -19,6 +19,8 @@ public class Proyecto
     private LocalDate fechaFin;
     private String estado;
     private String propietarioUid;
+    private Long asignaturaId;
+    private String asignaturaNombre;
     private LocalDateTime creadoEn;
     private LocalDateTime actualizadoEn;
 }

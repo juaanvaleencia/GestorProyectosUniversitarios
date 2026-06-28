@@ -17,6 +17,11 @@ import java.util.Optional;
 @ApplicationScoped
 public class DaoImpl implements Dao
 {
+    private static final String TAREA_COLUMNS = """
+            id, proyecto_id, titulo, descripcion, estado, prioridad, responsable_uid,
+            fecha_limite, orden, creado_en, origen, tarea_padre_id, letra_subtarea
+            """;
+
     private final DataSource dataSource;
 
     @Inject
@@ -27,9 +32,8 @@ public class DaoImpl implements Dao
     @Override
     public List<TareaRow> selectTareasByProyecto(long proyectoId) {
         final String sql = """
-            SELECT id, proyecto_id, titulo, descripcion, estado, prioridad, responsable_uid, fecha_limite, orden, creado_en
-              FROM tareas WHERE proyecto_id = ? ORDER BY orden, id
-            """;
+            SELECT %s FROM tareas WHERE proyecto_id = ? ORDER BY orden, id, letra_subtarea
+            """.formatted(TAREA_COLUMNS);
         List<TareaRow> list = new ArrayList<>();
         try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, proyectoId);
@@ -42,10 +46,7 @@ public class DaoImpl implements Dao
 
     @Override
     public Optional<TareaRow> selectTareaById(long id) {
-        final String sql = """
-            SELECT id, proyecto_id, titulo, descripcion, estado, prioridad, responsable_uid, fecha_limite, orden, creado_en
-              FROM tareas WHERE id = ?
-            """;
+        final String sql = "SELECT %s FROM tareas WHERE id = ?".formatted(TAREA_COLUMNS);
         try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -59,8 +60,9 @@ public class DaoImpl implements Dao
     public TareaRow insertTarea(TareaRow row)
     {
         final String sql = """
-            INSERT INTO tareas (proyecto_id, titulo, descripcion, estado, prioridad, responsable_uid, fecha_limite, orden)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO tareas (proyecto_id, titulo, descripcion, estado, prioridad, responsable_uid,
+                                fecha_limite, orden, origen, tarea_padre_id, letra_subtarea)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING id, creado_en
             """;
         try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql))
@@ -74,6 +76,10 @@ public class DaoImpl implements Dao
             if (row.getFechaLimite() == null) ps.setNull(7, Types.DATE);
             else ps.setDate(7, Date.valueOf(row.getFechaLimite()));
             ps.setInt(8, row.getOrden());
+            ps.setString(9, row.getOrigen() != null ? row.getOrigen() : "ALUMNO");
+            if (row.getTareaPadreId() == null) ps.setNull(10, Types.BIGINT);
+            else ps.setLong(10, row.getTareaPadreId());
+            ps.setString(11, row.getLetraSubtarea());
             try (ResultSet rs = ps.executeQuery())
             {
                 rs.next();
@@ -88,7 +94,8 @@ public class DaoImpl implements Dao
     public Optional<TareaRow> updateTarea(TareaRow row)
     {
         final String sql = """
-            UPDATE tareas SET titulo=?, descripcion=?, estado=?, prioridad=?, responsable_uid=?, fecha_limite=?, orden=?
+            UPDATE tareas SET titulo=?, descripcion=?, estado=?, prioridad=?, responsable_uid=?,
+                              fecha_limite=?, orden=?
              WHERE id=? AND proyecto_id=?
             """;
         try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql))
@@ -120,6 +127,72 @@ public class DaoImpl implements Dao
         catch (SQLException e) { throw new TfgRuntimeException(e); }
     }
 
+    @Override
+    public void insertNotificacion(String usuarioUid, String texto) {
+        final String sql = "INSERT INTO notificaciones (usuario_uid, texto, leida) VALUES (?, ?, FALSE)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, usuarioUid);
+            ps.setString(2, texto);
+            ps.executeUpdate();
+        } catch (SQLException e) { throw new TfgRuntimeException(e); }
+    }
+
+    @Override
+    public boolean isUsuarioTutorEnProyecto(long proyectoId, String usuarioUid) {
+        final String sql = """
+            SELECT 1 FROM miembros_proyecto
+             WHERE proyecto_id = ? AND usuario_uid = ? AND rol = 'TUTOR'
+            """;
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, proyectoId);
+            ps.setString(2, usuarioUid);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) { throw new TfgRuntimeException(e); }
+    }
+
+    @Override
+    public int countSubtareasByPadre(long tareaPadreId) {
+        final String sql = "SELECT COUNT(*) FROM tareas WHERE tarea_padre_id = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, tareaPadreId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) { throw new TfgRuntimeException(e); }
+    }
+
+    @Override
+    public int countSubtareasSinResponsableByPadre(long tareaPadreId) {
+        final String sql = """
+            SELECT COUNT(*) FROM tareas
+             WHERE tarea_padre_id = ?
+               AND (responsable_uid IS NULL OR TRIM(responsable_uid) = '')
+            """;
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, tareaPadreId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) { throw new TfgRuntimeException(e); }
+    }
+
+    @Override
+    public int updateEstadoSubtareasByPadreEnColumna(long tareaPadreId, String estadoOrigen, String estadoDestino) {
+        final String sql = """
+            UPDATE tareas SET estado = ?
+             WHERE tarea_padre_id = ?
+               AND UPPER(REPLACE(estado, '-', '_')) = UPPER(REPLACE(?, '-', '_'))
+            """;
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, estadoDestino);
+            ps.setLong(2, tareaPadreId);
+            ps.setString(3, estadoOrigen);
+            return ps.executeUpdate();
+        } catch (SQLException e) { throw new TfgRuntimeException(e); }
+    }
+
     private TareaRow mapTareaRow(ResultSet rs) throws SQLException {
         return TareaRow.builder()
                 .id(rs.getLong("id"))
@@ -132,6 +205,9 @@ public class DaoImpl implements Dao
                 .fechaLimite(toLocalDate(rs.getDate("fecha_limite")))
                 .orden(rs.getInt("orden"))
                 .creadoEn(rs.getTimestamp("creado_en").toLocalDateTime())
+                .origen(rs.getString("origen"))
+                .tareaPadreId(rs.getObject("tarea_padre_id", Long.class))
+                .letraSubtarea(rs.getString("letra_subtarea"))
                 .build();
     }
 

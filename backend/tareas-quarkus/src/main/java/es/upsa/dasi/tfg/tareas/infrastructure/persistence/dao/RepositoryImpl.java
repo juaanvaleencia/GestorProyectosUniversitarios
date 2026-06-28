@@ -56,4 +56,30 @@ public class RepositoryImpl implements Repository
             throw new NotFoundTfgException("Tarea no encontrada: " + id);
         }
     }
+
+    @Override
+    public void addNotificacion(String usuarioUid, String texto)
+    {
+        dao.insertNotificacion(usuarioUid, texto);
+    }
+
+    @Override
+    public boolean isUsuarioTutorEnProyecto(long proyectoId, String usuarioUid) {
+        return dao.isUsuarioTutorEnProyecto(proyectoId, usuarioUid);
+    }
+
+    @Override
+    public int countSubtareasByPadre(long tareaPadreId) {
+        return dao.countSubtareasByPadre(tareaPadreId);
+    }
+
+    @Override
+    public int countSubtareasSinResponsableByPadre(long tareaPadreId) {
+        return dao.countSubtareasSinResponsableByPadre(tareaPadreId);
+    }
+
+    @Override
+    public void updateEstadoSubtareasByPadreEnColumna(long tareaPadreId, String estadoOrigen, String estadoDestino) {
+        dao.updateEstadoSubtareasByPadreEnColumna(tareaPadreId, estadoOrigen, estadoDestino);
+    }
 }

@@ -17,7 +17,7 @@ public class ListTareasByProyectoUsecaseImpl implements ListTareasByProyectoUsec
 
     @Override
     public List<Tarea> execute(long proyectoId) {
-        authz.requireMember(proyectoId);
+        authz.requireViewAccess(proyectoId);
         return repository.findByProyectoId(proyectoId);
     }
 }

@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "Tarea de un proyecto, con estado, prioridad y responsable")
 public class TareaResponse
 {
     Long id;
@@ -20,4 +22,7 @@ public class TareaResponse
     String responsableUid;
     String fechaLimite;
     int orden;
+    String origen;
+    Long tareaPadreId;
+    String letraSubtarea;
 }

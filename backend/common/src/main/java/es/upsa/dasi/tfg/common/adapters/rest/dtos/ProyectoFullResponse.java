@@ -19,6 +19,8 @@ public class ProyectoFullResponse
     private String fechaFin;
     private String estado;
     private String propietarioUid;
+    private Long asignaturaId;
+    private String asignaturaNombre;
     private String creadoEn;
     private String actualizadoEn;
     @JsonbTransient

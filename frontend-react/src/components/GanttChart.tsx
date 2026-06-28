@@ -1,4 +1,5 @@
 import type { Hito, Proyecto, Tarea } from '../api/client';
+import { colorGanttTarea, etiquetaEstadoTarea } from '../utils/estadoTarea';
 
 type Props = {
   proyecto: Proyecto;
@@ -17,7 +18,7 @@ export default function GanttChart({ proyecto, hitos, tareas }: Props) {
   const end = parseDate(proyecto.fechaFin) ?? new Date(start.getTime() + 1000 * 60 * 60 * 24 * 90);
   const totalMs = Math.max(end.getTime() - start.getTime(), 1);
 
-  const items: { label: string; from: Date; to: Date; tone: string }[] = [];
+  const items: { label: string; from: Date; to: Date; tone: string; tipo?: string }[] = [];
 
   if (proyecto.fechaInicio && proyecto.fechaFin) {
     items.push({
@@ -39,8 +40,25 @@ export default function GanttChart({ proyecto, hitos, tareas }: Props) {
     const d = parseDate(t.fechaLimite);
     if (!d) return;
     const from = new Date(d.getTime() - 1000 * 60 * 60 * 24 * 7);
-    items.push({ label: t.titulo, from, to: d, tone: '#6366f1' });
+    const esSubtarea = Boolean(t.tareaPadreId);
+    const esProfesor = t.origen === 'PROFESOR' && !esSubtarea;
+    const etiqueta = esSubtarea && t.letraSubtarea
+      ? `${t.letraSubtarea}. ${t.titulo}`
+      : t.titulo;
+    items.push({
+      label: etiqueta,
+      from,
+      to: d,
+      tone: colorGanttTarea(t.estado),
+      tipo: esSubtarea
+        ? 'gantt-subtarea'
+        : esProfesor
+          ? 'gantt-profesor'
+          : `tarea-${t.estado.toLowerCase().replace(/_/g, '-')}`,
+    });
   });
+
+  const hayTareas = tareas.some((t) => parseDate(t.fechaLimite));
 
   function leftPct(d: Date) {
     return `${Math.max(0, Math.min(100, ((d.getTime() - start.getTime()) / totalMs) * 100))}%`;
@@ -52,6 +70,19 @@ export default function GanttChart({ proyecto, hitos, tareas }: Props) {
 
   return (
     <div className="gantt">
+      {hayTareas && (
+        <div className="gantt-legend">
+          {(['PENDIENTE', 'EN_PROGRESO', 'REVISION', 'HECHA'] as const).map((estado) => (
+            <span key={estado} className="gantt-legend-item">
+              <span
+                className="gantt-legend-dot"
+                style={{ background: colorGanttTarea(estado) }}
+              />
+              {etiquetaEstadoTarea(estado)}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="gantt-axis">
         <span>{start.toLocaleDateString('es-ES')}</span>
         <span>{end.toLocaleDateString('es-ES')}</span>
@@ -64,7 +95,7 @@ export default function GanttChart({ proyecto, hitos, tareas }: Props) {
             <div className="gantt-label">{item.label}</div>
             <div className="gantt-track">
               <div
-                className="gantt-bar"
+                className={`gantt-bar${item.tipo ? ` ${item.tipo}` : ''}`}
                 style={{
                   marginLeft: leftPct(item.from),
                   width: widthPct(item.from, item.to),

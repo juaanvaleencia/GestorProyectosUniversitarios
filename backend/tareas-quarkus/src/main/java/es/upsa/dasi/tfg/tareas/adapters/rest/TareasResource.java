@@ -24,7 +24,9 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.util.List;
 import java.util.Set;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+@Tag(name = "Tareas", description = "Tareas y subtareas de proyectos")
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

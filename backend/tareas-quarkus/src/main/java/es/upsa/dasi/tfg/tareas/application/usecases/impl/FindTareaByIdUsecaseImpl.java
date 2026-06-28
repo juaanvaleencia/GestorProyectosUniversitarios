@@ -26,7 +26,7 @@ public class FindTareaByIdUsecaseImpl implements FindTareaByIdUsecase
     public Optional<Tarea> execute(long id)
     {
         Optional<Tarea> tarea = repository.findById(id);
-        tarea.ifPresent(t -> authz.requireMember(t.getProyectoId()));
+        tarea.ifPresent(t -> authz.requireViewAccess(t.getProyectoId()));
         return tarea;
     }
 }

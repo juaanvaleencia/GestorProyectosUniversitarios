@@ -1,32 +1,44 @@
 #!/bin/bash
-# Arranca los microservicios en segundo plano (quarkus:dev).
-# Antes: docker compose up -d (desde la raíz del proyecto)
+# Arranca los microservicios en segundo plano.
 # Detener: ./stop-services.sh
+# Compilar antes (si hace falta): ./mvnw package -DskipTests
 
 cd "$(dirname "$0")"
-chmod +x mvnw
 mkdir -p logs
+
+./stop-services.sh 2>/dev/null || true
 
 start() {
   name=$1
   module=$2
-  port=$3
-  (
-    cd "$module"
-    ../mvnw quarkus:dev -Dquarkus.console.enabled=false
-  ) > "logs/$name.log" 2>&1 &
+  jar=$(ls "$module"/target/*-runner.jar 2>/dev/null | head -1)
+  if [ -z "$jar" ]; then
+    echo "[$name] Falta el JAR. Ejecuta: ./mvnw package -DskipTests"
+    return 1
+  fi
+  nohup java -jar "$jar" >> "logs/$name.log" 2>&1 &
   echo $! > "logs/$name.pid"
-  echo "$name -> puerto $port"
+  echo "$name -> arrancando"
 }
 
-echo "Iniciando backend TFG..."
-start health     health-quarkus     8081
-start proyectos  proyectos-quarkus  8082
-start tareas     tareas-quarkus     8083
-start usuarios   usuarios-quarkus   8084
-start informes   informes-quarkus   8085
-sleep 3
-start aggregator aggregator-quarkus 8080
+failed=0
+start health     health-quarkus     || failed=1
+start proyectos  proyectos-quarkus  || failed=1
+start tareas     tareas-quarkus     || failed=1
+start usuarios   usuarios-quarkus   || failed=1
+start informes   informes-quarkus   || failed=1
 
-echo ""
-echo "API: http://localhost:8080  |  Detener: ./stop-services.sh"
+sleep 12
+
+start aggregator aggregator-quarkus || failed=1
+
+for _ in $(seq 1 30); do
+  if curl -sf http://localhost:8080/api/health >/dev/null 2>&1; then
+    echo "API lista: http://localhost:8080  |  Detener: ./stop-services.sh"
+    exit "$failed"
+  fi
+  sleep 1
+done
+
+echo "AVISO: la API no respondió. Revisa logs/*.log"
+exit 1

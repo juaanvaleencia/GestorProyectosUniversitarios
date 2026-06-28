@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class ActividadDiaResponse
 {
     String dia;
+    String fecha;
     int tareas;
 }

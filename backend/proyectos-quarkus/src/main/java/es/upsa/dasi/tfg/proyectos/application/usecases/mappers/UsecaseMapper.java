@@ -1,8 +1,8 @@
 package es.upsa.dasi.tfg.proyectos.application.usecases.mappers;
 
-import es.upsa.dasi.tfg.proyectos.domain.model.AddProyectoCommand;
+import es.upsa.dasi.tfg.proyectos.domain.model.proyecto.AddProyectoCommand;
 import es.upsa.dasi.tfg.common.domain.model.Proyecto;
-import es.upsa.dasi.tfg.proyectos.domain.model.ReplaceProyectoCommand;
+import es.upsa.dasi.tfg.proyectos.domain.model.proyecto.ReplaceProyectoCommand;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

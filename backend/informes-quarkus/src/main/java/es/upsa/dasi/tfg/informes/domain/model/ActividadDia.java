@@ -8,5 +8,6 @@ import lombok.Value;
 public class ActividadDia
 {
     String dia;
+    String fecha;
     int tareas;
 }

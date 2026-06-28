@@ -1,4 +1,4 @@
-# Firebase — Guía paso a paso (tu proyecto)
+# Firebase 
 
 ## Importante: ¿dónde estás en la consola?
 

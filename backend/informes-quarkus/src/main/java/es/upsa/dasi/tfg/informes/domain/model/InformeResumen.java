@@ -13,6 +13,10 @@ public class InformeResumen
     int proyectosActivos;
     int tareasCompletadas;
     int tareasPendientes;
+    int hitosCompletados;
+    int hitosPendientes;
     int progresoMedio;
     List<ActividadDia> actividadSemanal;
+    List<InformeTareaPendiente> tareasPendientesDetalle;
+    List<InformeHitoPendiente> hitosPendientesDetalle;
 }

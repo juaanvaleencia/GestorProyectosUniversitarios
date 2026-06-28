@@ -16,4 +16,9 @@ public class NotificacionRow
     String texto;
     boolean leida;
     LocalDateTime creadoEn;
+    String tipo;
+    Long invitacionId;
+    Long proyectoId;
+    String invitacionEstado;
+    String invitacionSituacion;
 }

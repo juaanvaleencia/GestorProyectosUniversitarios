@@ -16,4 +16,5 @@ public class UsuarioSyncRequest
     @NotBlank
     private String nombre;
     private String avatarUrl;
+    private Long universidadId;
 }

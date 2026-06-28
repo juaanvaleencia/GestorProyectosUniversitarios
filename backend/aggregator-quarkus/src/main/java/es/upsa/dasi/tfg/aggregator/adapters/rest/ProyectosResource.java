@@ -16,7 +16,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+@Tag(name = "Proyectos", description = "CRUD y consulta de proyectos universitarios")
 @Path("/api/proyectos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -45,6 +47,20 @@ public class ProyectosResource
                 .build();
     }
 
+    @POST
+    @Path("desde-plantilla/{plantillaId}")
+    public Response createFromPlantilla(@PathParam("plantillaId") long plantillaId, @Context UriInfo uriInfo)
+            throws TfgException
+    {
+        Proyecto proyecto = repository.createProyectoDesdePlantilla(plantillaId);
+        return Response.created(uriInfo.getBaseUriBuilder()
+                        .path("/api/proyectos/{id}")
+                        .resolveTemplate("id", proyecto.getId())
+                        .build())
+                .entity(proyecto)
+                .build();
+    }
+
     @GET
     @Path("{id}")
     public Response get(@PathParam("id") long id) throws TfgException {
@@ -65,17 +81,5 @@ public class ProyectosResource
     public Response delete(@PathParam("id") long id) throws TfgException {
         repository.removeProyectoById(id);
         return Response.noContent().build();
-    }
-
-    @GET
-    @Path("{proyectoId}/hitos")
-    public Response hitos(@PathParam("proyectoId") long proyectoId) throws TfgException {
-        return Response.ok(repository.findHitosByProyecto(proyectoId)).build();
-    }
-
-    @GET
-    @Path("{proyectoId}/miembros")
-    public Response miembros(@PathParam("proyectoId") long proyectoId) throws TfgException {
-        return Response.ok(repository.findMiembrosByProyecto(proyectoId)).build();
     }
 }
